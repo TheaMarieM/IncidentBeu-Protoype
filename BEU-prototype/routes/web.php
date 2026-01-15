@@ -9,6 +9,9 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AdviserController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\ParentPortalController;
+use App\Http\Controllers\PrincipalDashboardController;
+use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Show login credentials page
@@ -26,8 +29,8 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $user = auth()->user();
-    
+    $user = Auth::user();
+
     if ($user && $user->role) {
         if ($user->role->name === 'student') {
             return redirect()->route('student.dashboard');
@@ -35,8 +38,14 @@ Route::get('/dashboard', function () {
         if ($user->role->name === 'parent') {
             return redirect()->route('parent.dashboard');
         }
+        if (in_array($user->role->name, [Role::PRINCIPAL, Role::ASSISTANT_PRINCIPAL])) {
+            return redirect()->route('principal.dashboard');
+        }
+        if ($user->role->name === 'adviser') {
+            return redirect()->route('adviser.dashboard');
+        }
     }
-    
+
     return app(DashboardController::class)->index();
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -92,5 +101,31 @@ Route::middleware(['auth', 'verified', 'role:parent'])->prefix('parent')->name('
     Route::get('/child/{student}', [ParentPortalController::class, 'viewChild'])->name('view-child');
     Route::get('/profile', [ParentPortalController::class, 'profile'])->name('profile');
 });
+
+// Principal / Assistant Principal Routes
+Route::middleware(['auth', 'verified', 'role:principal,assistant_principal'])
+    ->prefix('principal')
+    ->name('principal.')
+    ->group(function () {
+        Route::get('/dashboard', [PrincipalDashboardController::class, 'dashboard'])->name('dashboard');
+        Route::get('/archives', [PrincipalDashboardController::class, 'archives'])->name('archives');
+        Route::get('/incidents/{incident}', [PrincipalDashboardController::class, 'show'])->name('incidents.show');
+        Route::post('/incidents/{incident}/approve', [PrincipalDashboardController::class, 'approve'])->name('incidents.approve');
+        Route::post('/incidents/{incident}/return', [PrincipalDashboardController::class, 'returnForRevision'])->name('incidents.return');
+        Route::get('/incidents/{incident}/students/{student}/attachment', [PrincipalDashboardController::class, 'downloadAttachment'])
+            ->name('incidents.attachment');
+    });
+
+// Adviser Routes
+Route::middleware(['auth', 'verified', 'role:adviser'])
+    ->prefix('adviser')
+    ->name('adviser.')
+    ->group(function () {
+        Route::get('/dashboard', [AdviserController::class, 'dashboard'])->name('dashboard');
+        Route::get('/register-student', [AdviserController::class, 'createStudent'])->name('students.create');
+        Route::post('/students', [AdviserController::class, 'storeStudent'])->name('students.store');
+        Route::get('/students/{student}', [AdviserController::class, 'showStudent'])->name('students.show');
+        Route::get('/students/{student}/profile', [AdviserController::class, 'showProfile'])->name('students.profile');
+    });
 
 require __DIR__.'/auth.php';
