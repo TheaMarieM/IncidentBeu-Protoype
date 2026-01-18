@@ -1,0 +1,416 @@
+@extends('layouts.app')
+
+@section('content')
+<!-- Header -->
+<header class="bg-white border-b border-gray-200 px-8 py-5 sticky top-0 z-40">
+    <div>
+        <h2 class="text-xl font-bold text-gray-800">Incident Management Logs</h2>
+        <p class="text-xs text-gray-500 font-medium mt-0.5">Record, track, and manage student behavioral cases</p>
+    </div>
+</header>
+
+<div class="p-8 max-w-7xl mx-auto" x-data="{ activeTab: 'log' }">
+    
+    <!-- Tabs Navigation -->
+    <div class="flex gap-4 mb-6 border-b border-gray-200">
+        <button @click="activeTab = 'entry'" 
+                :class="activeTab === 'entry' ? 'border-green-600 text-green-700' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                class="pb-3 px-2 border-b-2 font-bold text-sm transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square"></i> New Incident
+        </button>
+        <button @click="activeTab = 'log'" 
+                :class="activeTab === 'log' ? 'border-green-600 text-green-700' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                class="pb-3 px-2 border-b-2 font-bold text-sm transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-table-list"></i> Master Log
+        </button>
+    </div>
+
+    <!-- New Incident Entry Form -->
+    <div x-show="activeTab === 'entry'" class="bg-white rounded-xl border border-gray-200 card-shadow mb-8 p-8 animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider">New Incident Entry</h3>
+            <p class="text-xs text-gray-400 italic">Standardized Reporting Protocol (ISO 25001)</p>
+        </div>
+
+        <form action="{{ route('incidents.store') }}" method="POST" enctype="multipart/form-data" id="incidentForm">
+            @csrf
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6" x-data="participantManager()">
+                <!-- Involved Parties -->
+                <div class="relative">
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Involved Parties</label>
+
+                    <!-- Simple Student Select -->
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-3">
+                        <select id="studentSelectSimple" class="w-full px-3 py-2 border border-gray-200 rounded text-sm mb-2">
+                            <option value="">Select a student...</option>
+                            @foreach($students as $student)
+                                <option value="{{ $student->id }}">{{ $student->last_name }}, {{ $student->first_name }} (Grade {{ $student->grade_level }} - {{ $student->section }})</option>
+                            @endforeach
+                        </select>
+                        <button type="button" onclick="addStudentSimple()" class="w-full px-4 py-2 bg-green-600 text-white rounded text-sm font-bold hover:bg-green-700">
+                            <i class="fa-solid fa-plus mr-1"></i> Add Student
+                        </button>
+                    </div>
+
+                    <!-- Selected Students List -->
+                    <div id="selectedStudentsList" class="space-y-2 mb-3"></div>
+                    
+                    <!-- Hidden inputs container -->
+                    <div id="studentsInputContainer"></div>
+                </div>
+
+                <script>
+                    let selectedStudents = [];
+                    
+                    function addStudentSimple() {
+                        const select = document.getElementById('studentSelectSimple');
+                        const studentId = select.value;
+                        const studentText = select.options[select.selectedIndex].text;
+                        
+                        if (!studentId) {
+                            alert('Please select a student');
+                            return;
+                        }
+                        
+                        // Check if already added
+                        if (selectedStudents.includes(studentId)) {
+                            alert('Student already added');
+                            return;
+                        }
+                        
+                        // Add to array
+                        selectedStudents.push(studentId);
+                        
+                        // Update visual list
+                        updateStudentsList();
+                        
+                        // Update hidden inputs
+                        updateHiddenInputs();
+                        
+                        // Reset select
+                        select.value = '';
+                    }
+                    
+                    function removeStudentSimple(studentId) {
+                        selectedStudents = selectedStudents.filter(id => id !== studentId);
+                        updateStudentsList();
+                        updateHiddenInputs();
+                    }
+                    
+                    function updateStudentsList() {
+                        const container = document.getElementById('selectedStudentsList');
+                        const select = document.getElementById('studentSelectSimple');
+                        
+                        if (selectedStudents.length === 0) {
+                            container.innerHTML = '<div class="text-center py-4 border-2 border-dashed border-gray-100 rounded-lg"><p class="text-xs text-gray-400 italic">No students added yet</p></div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        selectedStudents.forEach(studentId => {
+                            const option = select.querySelector(`option[value="${studentId}"]`);
+                            const studentName = option ? option.text : 'Unknown';
+                            
+                            html += `
+                                <div class="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-green-100 text-green-700">
+                                            <i class="fa-solid fa-user-graduate"></i>
+                                        </div>
+                                        <div class="text-sm font-bold text-gray-800">${studentName}</div>
+                                    </div>
+                                    <button type="button" onclick="removeStudentSimple('${studentId}')" class="text-red-400 hover:text-red-600 transition-colors p-1">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    }
+                    
+                    function updateHiddenInputs() {
+                        const container = document.getElementById('studentsInputContainer');
+                        container.innerHTML = '';
+                        
+                        selectedStudents.forEach(studentId => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'students[]';
+                            input.value = studentId;
+                            container.appendChild(input);
+                        });
+                        
+                        console.log('Hidden inputs updated. Student IDs:', selectedStudents);
+                    }
+                    
+                    // Initialize
+                    updateStudentsList();
+                </script>
+
+                <!-- Violation Type -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Violation Type (Standardized)</label>
+                    <select name="violation_category_id" required
+                            class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none">
+                        <option value="">Select violation...</option>
+                        @foreach($violationCategories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Date -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Date</label>
+                    <input type="date" name="incident_date" required value="{{ old('incident_date', now()->format('Y-m-d')) }}"
+                           class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none">
+                </div>
+
+                <!-- Time -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Time</label>
+                    <input type="time" name="incident_time" required value="{{ old('incident_time', now()->format('H:i')) }}"
+                           class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none">
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Location of Incident</label>
+                    <input type="text" name="location" placeholder="e.g., Canteen, Classroom 10A" required value="{{ old('location') }}"
+                           class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Mandatory Violation Summary -->
+                <div>
+                    <label class="block text-[11px] font-bold text-red-500 uppercase tracking-wider mb-2">Mandatory Violation Summary</label>
+                    <textarea name="description" rows="4" required
+                              placeholder="Brief official summary for Principal's approval..."
+                              class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none resize-none">{{ old('description') }}</textarea>
+                </div>
+
+                <!-- Narrative Report (Optional) -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Narrative Report (Optional)</label>
+                    <div class="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-green-500 transition-colors cursor-pointer" onclick="document.getElementById('narrative_file').click()">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-300 mb-2"></i>
+                        <p class="text-xs text-gray-400 mb-1" id="file-name">Click to upload scanned narrative picture</p>
+                        <input type="file" id="narrative_file" name="narrative_file" accept="image/*,.pdf" class="hidden" onchange="updateFileName(this)">
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-2 italic">Upon submission, an automated summary report will be generated for the Principal[cite: 254].</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-8 py-3 rounded-lg text-sm font-bold transition-all shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-file-circle-check"></i>
+                    Process Incident Log
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Master Incident Log -->
+    <div x-show="activeTab === 'log'" class="bg-white rounded-xl border border-gray-200 card-shadow overflow-hidden animate-fade-in" style="display: none;">
+        <div class="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+            <div>
+                <h3 class="font-bold text-gray-800">Master Incident Log</h3>
+                <p class="text-xs text-gray-500 mt-1">Historical record organized by section and grade</p>
+            </div>
+            
+            <form method="GET" class="flex flex-wrap gap-2">
+                <!-- Grade Filter -->
+                <select name="grade_level" onchange="this.form.submit()" class="px-3 py-2 border border-gray-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-green-500 outline-none bg-gray-50 text-gray-600">
+                    <option value="">All Grades</option>
+                    <option value="7" {{ request('grade_level') == '7' ? 'selected' : '' }}>Grade 7</option>
+                    <option value="8" {{ request('grade_level') == '8' ? 'selected' : '' }}>Grade 8</option>
+                    <option value="9" {{ request('grade_level') == '9' ? 'selected' : '' }}>Grade 9</option>
+                    <option value="10" {{ request('grade_level') == '10' ? 'selected' : '' }}>Grade 10</option>
+                    <option value="11" {{ request('grade_level') == '11' ? 'selected' : '' }}>Grade 11</option>
+                    <option value="12" {{ request('grade_level') == '12' ? 'selected' : '' }}>Grade 12</option>
+                </select>
+
+                <!-- Section Filter -->
+                <input type="text" name="section" value="{{ request('section') }}" placeholder="Filter Section..." 
+                       class="px-3 py-2 border border-gray-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-green-500 outline-none bg-gray-50 w-32">
+                
+                @if(request('search')) <input type="hidden" name="search" value="{{ request('search') }}"> @endif
+                
+                <button type="submit" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-colors">
+                    Filter
+                </button>
+            </form>
+        </div>
+
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <form method="GET" class="relative w-full max-w-md">
+                @if(request('grade_level')) <input type="hidden" name="grade_level" value="{{ request('grade_level') }}"> @endif
+                @if(request('section')) <input type="hidden" name="section" value="{{ request('section') }}"> @endif
+                
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by student, case ID, or details..." 
+                       class="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-green-500 outline-none w-full bg-white shadow-sm">
+            </form>
+            <button class="px-4 py-2 border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2 ml-4">
+                <i class="fa-solid fa-file-pdf text-red-500"></i>
+                Export
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Case ID</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Incident Detail</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Parties Involved</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Reporting Authority</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Workflow Status</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm">
+                    @forelse($incidents as $incident)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-gray-500 text-xs font-mono">#INC-{{ now()->year }}-{{ str_pad($incident->id, 3, '0', STR_PAD_LEFT) }}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-semibold text-gray-800">{{ $incident->category->name ?? 'N/A' }}</div>
+                            <div class="text-xs text-gray-500">
+                                {{ $incident->incident_date->format('M d, Y') }} 
+                                @if($incident->students->isNotEmpty())
+                                    • Grade {{ $incident->students->first()->grade_level }}
+                                @else
+                                    • Non-Student
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">
+                            @if($incident->students->isNotEmpty())
+                                {{ $incident->students->first()->full_name }}
+                            @elseif($incident->non_student_participant)
+                                {{ $incident->non_student_participant }} <span class="text-xs text-gray-400 italic">(External)</span>
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-gray-700">{{ $incident->reporter->name ?? 'N/A' }}</div>
+                            <div class="text-[10px] text-gray-400 uppercase tracking-wide">{{ $incident->reporter->role->name ?? 'N/A' }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            @if($incident->status === 'pending_approval')
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100 uppercase">
+                                    <i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> Submitted for Review
+                                </span>
+                            @elseif($incident->status === 'approved')
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 uppercase">
+                                    <i class="fa-solid fa-circle-check mr-1.5"></i> Done / Closed
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-50 text-gray-700 border border-gray-100 uppercase">
+                                    {{ $incident->status }}
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex gap-2">
+                                <a href="{{ route('incidents.show', $incident) }}" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-[10px] font-bold uppercase transition-colors">
+                                    Manage
+                                </a>
+                                @if($incident->status === 'approved')
+                                <button class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase transition-colors">
+                                    Archive
+                                </button>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-400 text-sm">
+                            No incidents recorded yet.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($incidents->hasPages())
+        <div class="px-6 py-4 border-t border-gray-100">
+            {{ $incidents->links() }}
+        </div>
+        @endif
+    </div>
+
+</div>
+
+<script>
+function participantManager() {
+    return {
+        isNonStudent: false,
+        nonStudentName: '',
+        participants: [],
+        
+        addParticipant() {
+            if (this.isNonStudent) {
+                const name = this.nonStudentName.trim();
+                if (!name) return;
+                
+                if (this.participants.some(p => p.type === 'non-student' && p.name.toLowerCase() === name.toLowerCase())) {
+                    alert('This participant is already added.');
+                    return;
+                }
+
+                this.participants.push({
+                    type: 'non-student',
+                    id: null,
+                    name: name,
+                    detail: 'External Participant'
+                });
+                this.nonStudentName = '';
+            } else {
+                const select = this.$refs.studentSelect;
+                const option = select.options[select.selectedIndex];
+                const id = select.value;
+                
+                if (!id) return;
+                
+                if (this.participants.some(p => p.type === 'student' && p.id === id)) {
+                    alert('This student is already added.');
+                    return;
+                }
+
+                const name = option.getAttribute('data-name');
+                const detail = option.getAttribute('data-detail');
+
+                this.participants.push({
+                    type: 'student',
+                    id: id,
+                    name: name,
+                    detail: detail
+                });
+                select.value = "";
+            }
+        },
+        
+        removeParticipant(index) {
+            this.participants.splice(index, 1);
+        }
+    }
+}
+
+function updateFileName(input) {
+    const fileName = input.files[0]?.name;
+    if (fileName) {
+        document.getElementById('file-name').textContent = fileName;
+    }
+}
+
+</script>
+@endsection
