@@ -188,6 +188,8 @@ class AdviserController extends Controller
             'last_name' => 'required|string|max:255',
             'student_id' => 'required|string|unique:students,student_id|max:255',
             'email' => 'required|email|unique:students,email',
+            'date_of_birth' => 'required|date',
+            'gender' => 'required|in:male,female',
             'residential_address' => 'required|string',
             'boarding_address' => 'nullable|string',
             'guardian_name' => 'required|string|max:255',
@@ -196,12 +198,18 @@ class AdviserController extends Controller
             'father_name' => 'nullable|string|max:255',
         ]);
 
+        $adviser = Auth::user();
+
         $student = \App\Models\Student::create([
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'],
             'last_name' => $validated['last_name'],
             'student_id' => $validated['student_id'],
             'email' => $validated['email'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'gender' => $validated['gender'],
+            'grade_level' => $adviser->grade_level,
+            'section' => $adviser->section,
             'residential_address' => $validated['residential_address'],
             'boarding_address' => $validated['boarding_address'],
             'guardian_name' => $validated['guardian_name'],
@@ -223,6 +231,59 @@ class AdviserController extends Controller
         }
 
         return view('adviser.students.profile', compact('student'));
+    }
+
+    public function editStudent(\App\Models\Student $student)
+    {
+        // Ensure the student belongs to the logged-in adviser
+        if ($student->adviser_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to student records.');
+        }
+
+        return view('adviser.students.edit', compact('student'));
+    }
+
+    public function updateStudent(Request $request, \App\Models\Student $student)
+    {
+        // Ensure the student belongs to the logged-in adviser
+        if ($student->adviser_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to student records.');
+        }
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'student_id' => 'required|string|max:255|unique:students,student_id,' . $student->id,
+            'email' => 'nullable|email|unique:students,email,' . $student->id,
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'required|in:male,female',
+            'residential_address' => 'nullable|string',
+            'boarding_address' => 'nullable|string',
+            'guardian_name' => 'nullable|string|max:255',
+            'guardian_contact' => 'nullable|string|max:255',
+            'mother_name' => 'nullable|string|max:255',
+            'father_name' => 'nullable|string|max:255',
+        ]);
+
+        $student->update([
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'],
+            'last_name' => $validated['last_name'],
+            'student_id' => $validated['student_id'],
+            'email' => $validated['email'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'gender' => $validated['gender'],
+            'residential_address' => $validated['residential_address'],
+            'boarding_address' => $validated['boarding_address'],
+            'guardian_name' => $validated['guardian_name'],
+            'guardian_contact' => $validated['guardian_contact'],
+            'mother_name' => $validated['mother_name'],
+            'father_name' => $validated['father_name'],
+        ]);
+
+        return redirect()->route('adviser.students.profile', $student)
+            ->with('success', 'Student profile updated successfully.');
     }
 }
 

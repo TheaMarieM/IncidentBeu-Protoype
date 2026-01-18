@@ -3,6 +3,8 @@
 @section('content')
 @php
     $userName = auth()->user()->name ?? 'Adviser';
+    $sectionName = auth()->user()->section ?? 'Adviser';
+    $adviserTitle = $sectionName ? $sectionName . "'s Adviser" : 'Adviser';
     $fullName = $student->first_name . ' ' . ($student->middle_name ? $student->middle_name . ' ' : '') . $student->last_name;
 @endphp
 
@@ -17,9 +19,12 @@
         <p class="text-sm text-gray-500 mt-1">{{ $fullName }} · {{ $student->student_id }}</p>
     </div>
     <div class="flex items-center gap-4">
+        <a href="{{ route('adviser.students.edit', $student) }}" class="px-4 py-2 text-sm font-semibold rounded-lg bg-green-700 text-white hover:bg-green-800 transition-colors inline-flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+        </a>
         <div class="h-10 w-px bg-gray-300"></div>
         <div class="flex items-center gap-3">
-            <p class="text-sm font-bold text-gray-900">Adviser</p>
+            <p class="text-sm font-bold text-gray-900">{{ $adviserTitle }}</p>
             <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
                 <i class="fa-solid fa-user"></i>
             </div>

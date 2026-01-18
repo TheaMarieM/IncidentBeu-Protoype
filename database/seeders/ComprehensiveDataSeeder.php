@@ -15,8 +15,12 @@ class ComprehensiveDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get adviser
-        $adviser = User::where('employee_id', 'AD-001')->first();
+        // Get advisers by grade level and section
+        $advisers = User::whereHas('role', function ($query) {
+            $query->where('name', 'adviser');
+        })->get()->keyBy(function($adviser) {
+            return $adviser->grade_level . '-' . $adviser->section;
+        });
         
         // Create multiple students with parents and data
         $studentsData = [
@@ -25,7 +29,7 @@ class ComprehensiveDataSeeder extends Seeder
                 'first_name' => 'Maria',
                 'middle_name' => 'Ciara',
                 'last_name' => 'Santos',
-                'grade_level' => 7,
+                'grade_level' => 8,
                 'section' => 'St. Mark',
                 'parent_name' => 'Maria Santos',
                 'parent_email' => 'maria.santos@example.com',
@@ -38,7 +42,7 @@ class ComprehensiveDataSeeder extends Seeder
                 'first_name' => 'John',
                 'middle_name' => 'Michael',
                 'last_name' => 'Cruz',
-                'grade_level' => 8,
+                'grade_level' => 9,
                 'section' => 'St. Luke',
                 'parent_name' => 'Robert Cruz',
                 'parent_email' => 'robert.cruz@example.com',
@@ -51,7 +55,7 @@ class ComprehensiveDataSeeder extends Seeder
                 'first_name' => 'Anna',
                 'middle_name' => 'Grace',
                 'last_name' => 'Reyes',
-                'grade_level' => 9,
+                'grade_level' => 10,
                 'section' => 'St. John',
                 'parent_name' => 'Patricia Reyes',
                 'parent_email' => 'patricia.reyes@example.com',
@@ -64,7 +68,7 @@ class ComprehensiveDataSeeder extends Seeder
                 'first_name' => 'Carlos',
                 'middle_name' => 'Antonio',
                 'last_name' => 'Lopez',
-                'grade_level' => 10,
+                'grade_level' => 7,
                 'section' => 'St. Matthew',
                 'parent_name' => 'Fernando Lopez',
                 'parent_email' => 'fernando.lopez@example.com',
@@ -88,6 +92,14 @@ class ComprehensiveDataSeeder extends Seeder
         ];
 
         foreach ($studentsData as $data) {
+            // Get the correct adviser for this student's grade and section
+            $adviserKey = $data['grade_level'] . '-' . $data['section'];
+            $adviser = $advisers->get($adviserKey);
+            
+            if (!$adviser) {
+                continue; // Skip if adviser not found
+            }
+            
             // Create or get student
             $student = Student::firstOrCreate(
                 ['student_id' => $data['student_id']],

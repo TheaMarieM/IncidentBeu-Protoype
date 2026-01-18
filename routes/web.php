@@ -11,6 +11,7 @@ use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\ParentPortalController;
 use App\Http\Controllers\PrincipalDashboardController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 // Show login credentials page
 Route::get('/login-info', function () {
@@ -27,7 +28,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $user = auth()->user();
+    $user = Auth::user();
     
     if ($user && $user->role) {
         if ($user->role->name === 'student') {
@@ -76,6 +77,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/incidents/{incident}/students/{student}/update-sanction', [IncidentController::class, 'updateStudentSanction'])
         ->name('incidents.update-student-sanction')
         ->middleware('throttle:30,1');
+    Route::post('/incidents/{incident}/archive', [IncidentController::class, 'archive'])
+        ->name('incidents.archive')
+        ->middleware('throttle:30,1');
     
     // Adviser Management (with rate limiting)
     Route::resource('advisers', AdviserController::class)
@@ -105,7 +109,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified', 'role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentPortalController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [StudentPortalController::class, 'profile'])->name('profile');
-    Route::get('/incidents', [StudentPortalController::class, 'incidents'])->name('incidents');
+    // Route::get('/incidents', [StudentPortalController::class, 'incidents'])->name('incidents');
 });
 
 // Parent Portal Routes
@@ -139,6 +143,8 @@ Route::middleware(['auth', 'verified', 'role:adviser'])
         Route::post('/students', [AdviserController::class, 'storeStudent'])->name('students.store');
         Route::get('/students/{student}', [AdviserController::class, 'showStudent'])->name('students.show');
         Route::get('/students/{student}/profile', [AdviserController::class, 'showProfile'])->name('students.profile');
+        Route::get('/students/{student}/edit', [AdviserController::class, 'editStudent'])->name('students.edit');
+        Route::put('/students/{student}', [AdviserController::class, 'updateStudent'])->name('students.update');
     });
 
 require __DIR__.'/auth.php';

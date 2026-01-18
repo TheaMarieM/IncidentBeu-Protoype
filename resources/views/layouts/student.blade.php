@@ -49,12 +49,6 @@
                 <span>My Attendance</span>
             </a>
             
-            <a href="{{ route('student.incidents') }}" 
-               class="flex items-center gap-3 px-4 py-3 text-white text-sm font-semibold rounded transition-all mb-1 {{ request()->routeIs('student.incidents') ? 'sidebar-item-active' : 'hover:bg-green-800' }}">
-                <i class="fa-solid fa-exclamation-triangle w-4 text-center {{ request()->routeIs('student.incidents') ? 'text-yellow-400' : '' }}"></i>
-                <span>My Incidents</span>
-            </a>
-            
             <a href="{{ route('student.profile') }}" 
                class="flex items-center gap-3 px-4 py-3 text-white text-sm font-semibold rounded transition-all mb-1 {{ request()->routeIs('student.profile') ? 'sidebar-item-active' : 'hover:bg-green-800' }}">
                 <i class="fa-solid fa-user w-4 text-center {{ request()->routeIs('student.profile') ? 'text-yellow-400' : '' }}"></i>
@@ -70,19 +64,6 @@
                     <span>Logout</span>
                 </button>
             </form>
-        </div>
-        
-        <!-- User Profile -->
-        <div class="bg-green-950 p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-green-900 font-bold text-sm">
-                    {{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 1)) }}{{ strtoupper(substr(explode(' ', Auth::user()->name ?? 'S')[1] ?? 'T', 0, 1)) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-white text-xs font-bold truncate">{{ Auth::user()->name }}</p>
-                    <p class="text-yellow-400 text-[10px] font-semibold uppercase">Student | Grade {{ $student->grade_level ?? '?' }}</p>
-                </div>
-            </div>
         </div>
     </aside>
     

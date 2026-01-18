@@ -77,15 +77,9 @@ class ParentPortalController extends Controller
             ->whereBetween('date', [$semesterStart, $semesterEnd])
             ->count();
 
-        // Get recent incidents
-        $incidents = $student->incidents()
-            ->with(['category', 'reporter.role'])
-            ->orderBy('incident_date', 'desc')
-            ->limit(10)
-            ->get();
-
-        // Get recent attendance
+        // Get recent attendance (only absences, tardiness, and excused)
         $attendanceRecords = AttendanceRecord::where('student_id', $student->id)
+            ->whereIn('status', ['absent', 'tardy', 'excused'])
             ->orderBy('date', 'desc')
             ->limit(10)
             ->get();
@@ -95,7 +89,6 @@ class ParentPortalController extends Controller
             'student',
             'totalAbsences',
             'totalTardiness',
-            'incidents',
             'attendanceRecords',
             'academicYear'
         ));

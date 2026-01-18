@@ -34,6 +34,11 @@ class IncidentController extends Controller
             });
         }
 
+        // Filter by Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         // Filter by Search (Student, Description, ID)
         if ($request->filled('search')) {
             $search = $request->search;
@@ -370,4 +375,18 @@ class IncidentController extends Controller
             ];
         }));
     }
+
+    public function archive(Incident $incident)
+    {
+        // Only allow archiving if status is 'approved' (done/closed)
+        if ($incident->status !== 'approved') {
+            return back()->with('error', 'Only closed incidents can be archived.');
+        }
+
+        $incident->update(['status' => 'closed']);
+        
+        return redirect()->route('incidents.index')
+            ->with('success', 'Incident has been archived successfully.');
+    }
 }
+

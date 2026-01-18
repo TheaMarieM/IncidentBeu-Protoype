@@ -47,8 +47,8 @@
                 <i class="fa-solid fa-clipboard mr-2"></i> Reported
             </span>
         @elseif($incident->status === 'under_review')
-            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-purple-50 text-purple-700 border border-purple-200 uppercase">
-                <i class="fa-solid fa-magnifying-glass mr-2"></i> Under Review
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-yellow-50 text-yellow-700 border border-yellow-200 uppercase">
+                <i class="fa-solid fa-rotate-left mr-2"></i> For Revision
             </span>
         @elseif($incident->status === 'pending_approval')
             <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-orange-50 text-orange-700 border border-orange-200 uppercase">
@@ -272,14 +272,24 @@
                 <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">Actions</h3>
                 
                 <div class="space-y-3">
-                    @if($incident->status !== 'approved' && $incident->status !== 'closed')
+                    @if($incident->status === 'under_review')
+                    <button onclick="document.getElementById('edit-incident-form').style.display = 'flex'" 
+                            class="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Incident
+                    </button>
+                    
+                    <a href="{{ route('incidents.summary-report', $incident) }}" 
+                            class="w-full px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 leading-tight">
+                        <i class="fa-solid fa-file-pen"></i> Edit Summary Report
+                    </a>
+                    @elseif($incident->status !== 'approved' && $incident->status !== 'closed')
                     <button onclick="document.getElementById('edit-incident-form').style.display = 'flex'" 
                             class="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-pen-to-square"></i> Edit Incident
                     </button>
                     @endif
                     
-                    @if($incident->status === 'under_review' || $incident->status === 'reported')
+                    @if($incident->status === 'reported')
                     <a href="{{ route('incidents.summary-report', $incident) }}" 
                             class="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 leading-tight">
                         <i class="fa-solid fa-file-invoice"></i> Create Summary Report
@@ -293,23 +303,12 @@
                     </a>
                     @endif
 
-                    @if($incident->status === 'pending_approval')
-                    <form action="{{ route('incidents.reject', $incident) }}" method="POST" class="w-full">
-                        @csrf
-                        <button type="submit" onclick="return confirm('Reject this incident?')"
-                                class="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-times-circle"></i> Return for Revision
-                        </button>
-                    </form>
-                    @endif
-
                     @if($incident->status === 'approved')
-                    <form action="{{ route('incidents.destroy', $incident) }}" method="POST" class="w-full">
+                    <form action="{{ route('incidents.archive', $incident) }}" method="POST" class="w-full">
                         @csrf
-                        @method('DELETE')
-                        <button type="submit" onclick="return confirm('Archive this incident?')"
+                        <button type="submit" onclick="return confirm('Archive this incident? It will be moved to closed status.')"
                                 class="w-full px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-sm transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-folder-closed"></i> Archive
+                            <i class="fa-solid fa-folder-closed"></i> Archive Record
                         </button>
                     </form>
                     @endif

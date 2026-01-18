@@ -12,6 +12,7 @@ class ParentModel extends Model
     protected $table = 'parents';
 
     protected $fillable = [
+        'user_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -22,6 +23,11 @@ class ParentModel extends Model
         'address',
         'status',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function students()
     {

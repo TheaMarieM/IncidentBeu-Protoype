@@ -12,10 +12,11 @@
         ? $commonIncidentName . ' · ' . $commonIncidentTotal . ' cases'
         : 'No active violation trend';
     $statusMeta = [
-        'pending_approval' => ['label' => 'Awaiting Principal', 'class' => 'bg-amber-50 text-amber-700 border border-amber-200'],
-        'under_review' => ['label' => 'Under Review', 'class' => 'bg-gray-100 text-gray-600 border border-gray-200'],
+        'pending_approval' => ['label' => 'Pending Approval', 'class' => 'bg-blue-50 text-blue-700 border border-blue-100'],
+        'under_review' => ['label' => 'Returned for Revision', 'class' => 'bg-yellow-100 text-yellow-800 border border-yellow-200'],
         'reported' => ['label' => 'Reported', 'class' => 'bg-blue-50 text-blue-600 border border-blue-200'],
-        'approved' => ['label' => 'Closed', 'class' => 'bg-emerald-50 text-emerald-700 border border-emerald-200'],
+        'approved' => ['label' => 'Closed', 'class' => 'bg-green-50 text-green-700 border border-green-100'],
+        'closed' => ['label' => 'Archived', 'class' => 'bg-gray-600 text-white border border-gray-700'],
     ];
 @endphp
 
@@ -79,7 +80,7 @@
                     <i class="fa-solid fa-clipboard-check text-amber-600 text-xl"></i>
                 </div>
             </div>
-            <p class="text-xs text-amber-700 font-bold">📋 Awaiting Principal Review</p>
+            <p class="text-xs text-amber-700 font-bold">📋 Pending Principal Review</p>
             <p class="text-xs text-amber-600 mt-1">Requires final case closure</p>
         </div>
     </section>
@@ -92,12 +93,62 @@
                 <p class="text-xs text-gray-600 mt-1">Track real-time submissions, severity, and routing officer</p>
             </div>
                 <div class="flex gap-3">
-                    <button class="px-5 py-2.5 text-xs font-bold border-2 border-gray-200 rounded-xl text-gray-700 hover:bg-white transition-colors bg-gray-50">
-                        <i class="fa-solid fa-magnifying-glass mr-2"></i> Search
-                    </button>
-                    <button class="px-5 py-2.5 text-xs font-bold border-2 border-gray-200 rounded-xl text-gray-700 hover:bg-white transition-colors bg-gray-50">
-                        <i class="fa-solid fa-filter mr-2"></i> Filters
-                    </button>
+                    <form method="GET" action="{{ route('principal.dashboard') }}" class="relative" x-data="{ searchOpen: false }">
+                        @if(request('status'))
+                            <input type="hidden" name="status" value="{{ request('status') }}">
+                        @endif
+                        <div class="flex items-center gap-2">
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                   placeholder="Search by student name..." 
+                                   x-show="searchOpen" x-cloak
+                                   class="px-4 py-2.5 text-xs border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-0 transition-all w-64">
+                            <button type="button" @click="searchOpen = !searchOpen" 
+                                    class="px-5 py-2.5 text-xs font-bold border-2 border-gray-200 rounded-xl text-gray-700 hover:bg-white transition-colors bg-gray-50 flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass"></i> 
+                                <span x-show="!searchOpen">Search</span>
+                                @if(request('search'))
+                                    <span class="w-2 h-2 bg-green-600 rounded-full"></span>
+                                @endif
+                            </button>
+                            <button type="submit" x-show="searchOpen" x-cloak
+                                    class="px-5 py-2.5 text-xs font-bold bg-green-600 hover:bg-green-700 text-white rounded-xl transition-colors">
+                                Go
+                            </button>
+                            @if(request('search'))
+                                <a href="{{ route('principal.dashboard', request()->except('search')) }}" x-show="searchOpen" x-cloak
+                                   class="px-3 py-2.5 text-xs font-bold text-gray-500 hover:text-gray-700 transition-colors">
+                                    <i class="fa-solid fa-times"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="px-5 py-2.5 text-xs font-bold border-2 border-gray-200 rounded-xl text-gray-700 hover:bg-white transition-colors bg-gray-50 flex items-center gap-2">
+                            <i class="fa-solid fa-filter"></i> Filters
+                            @if(request('status'))
+                                <span class="w-2 h-2 bg-green-600 rounded-full"></span>
+                            @endif
+                        </button>
+                        <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border-2 border-gray-200 z-50">
+                            <div class="p-4">
+                                <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Filter by Status</h3>
+                                <form method="GET" action="{{ route('principal.dashboard') }}" class="space-y-2">
+                                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="radio" name="status" value="" {{ !request('status') ? 'checked' : '' }} onchange="this.form.submit()" class="text-green-600 focus:ring-green-500">
+                                        <span class="text-sm text-gray-700 font-medium">All Statuses</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="radio" name="status" value="pending_approval" {{ request('status') === 'pending_approval' ? 'checked' : '' }} onchange="this.form.submit()" class="text-green-600 focus:ring-green-500">
+                                        <span class="text-sm text-gray-700 font-medium">Pending Approval</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="radio" name="status" value="under_review" {{ request('status') === 'under_review' ? 'checked' : '' }} onchange="this.form.submit()" class="text-green-600 focus:ring-green-500">
+                                        <span class="text-sm text-gray-700 font-medium">Returned for Revision</span>
+                                    </label>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
             </div>
         </div>
 

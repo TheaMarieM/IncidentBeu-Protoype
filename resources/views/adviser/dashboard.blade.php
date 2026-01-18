@@ -3,6 +3,8 @@
 @section('content')
 @php
     $userName = auth()->user()->name ?? 'Adviser';
+    $sectionName = auth()->user()->section ?? 'Adviser';
+    $adviserTitle = $sectionName ? $sectionName . "'s Adviser" : 'Adviser';
 @endphp
 
 <header class="bg-white border-b border-gray-200 px-8 py-4 flex flex-wrap gap-4 justify-between items-center sticky top-0 z-30 shadow-sm">
@@ -16,7 +18,7 @@
         </a>
         <div class="h-10 w-px bg-gray-300"></div>
         <div class="flex items-center gap-3">
-            <p class="text-sm font-bold text-gray-900">Adviser</p>
+            <p class="text-sm font-bold text-gray-900">{{ $adviserTitle }}</p>
             <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
                 <i class="fa-solid fa-user"></i>
             </div>

@@ -98,10 +98,17 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-gray-800 font-medium">{{ $record->notes ?? 'Whole day absence.' }}</div>
-                            @if($record->reporter)
-                                <div class="text-xs text-gray-500 mt-1">Reported by {{ $record->reporter->name }}</div>
-                            @endif
+                            <div class="text-gray-800 font-medium">
+                                @if($record->status === 'absent')
+                                    {{ $record->notes ?? 'Whole day absence.' }}
+                                @elseif($record->status === 'tardy')
+                                    {{ $record->notes ?? 'Late arrival to class.' }}
+                                @elseif($record->status === 'excused')
+                                    {{ $record->notes ?? 'Excused absence.' }}
+                                @else
+                                    {{ $record->notes ?? 'No details provided.' }}
+                                @endif
+                            </div>
                         </td>
                         <td class="px-6 py-4">
                             @if($record->is_excused)

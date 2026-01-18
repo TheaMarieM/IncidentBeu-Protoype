@@ -5,17 +5,18 @@
     $userName = auth()->user()->name ?? 'Adviser';
     $sectionName = auth()->user()->section ?? 'Adviser';
     $adviserTitle = $sectionName ? $sectionName . "'s Adviser" : 'Adviser';
+    $fullName = $student->first_name . ' ' . ($student->middle_name ? $student->middle_name . ' ' : '') . $student->last_name;
 @endphp
 
 <header class="bg-white border-b border-gray-200 px-8 py-4 flex flex-wrap gap-4 justify-between items-center sticky top-0 z-30 shadow-sm">
     <div>
         <div class="flex items-center gap-3 mb-2">
-            <a href="{{ route('adviser.dashboard') }}" class="text-gray-500 hover:text-gray-700">
+            <a href="{{ route('adviser.students.profile', $student) }}" class="text-gray-500 hover:text-gray-700">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
-            <h1 class="text-2xl font-bold text-gray-900">Register Student</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Edit Student Profile</h1>
         </div>
-        <p class="text-sm text-gray-500 mt-1">Fill in the student's basic information and family details.</p>
+        <p class="text-sm text-gray-500 mt-1">{{ $fullName }} · {{ $student->student_id }}</p>
     </div>
     <div class="flex items-center gap-4">
         <div class="h-10 w-px bg-gray-300"></div>
@@ -30,15 +31,37 @@
 
 <div class="p-8 space-y-8">
     <section class="max-w-4xl mx-auto">
+        @if (session('success'))
+            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-green-800 font-semibold">
+                    <i class="fas fa-check-circle"></i> {{ session('success') }}
+                </p>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-red-800 font-semibold mb-2">
+                    <i class="fas fa-exclamation-circle"></i> Please fix the following errors:
+                </p>
+                <ul class="text-red-700 text-sm space-y-1 list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="bg-white border border-gray-200 rounded-3xl overflow-hidden card-shadow">
             <div class="px-7 py-6 border-b border-gray-100">
-                <p class="text-xs uppercase tracking-[0.2em] text-gray-400 font-semibold">Student Registration Form</p>
-                <h2 class="text-2xl font-black text-gray-900 mt-1">Basic Information & Family Details</h2>
-                <p class="text-xs text-gray-500 mt-1">Please ensure all required fields are accurately filled.</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-gray-400 font-semibold">Student Profile Editor</p>
+                <h2 class="text-2xl font-black text-gray-900 mt-1">Update Student Information</h2>
+                <p class="text-xs text-gray-500 mt-1">Modify the student's details below.</p>
             </div>
 
-            <form action="{{ route('adviser.students.store') }}" method="POST" class="p-8 space-y-8">
+            <form action="{{ route('adviser.students.update', $student) }}" method="POST" class="p-8 space-y-8">
                 @csrf
+                @method('PUT')
 
                 <!-- Student Basic Information -->
                 <div class="space-y-4">
@@ -47,7 +70,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">First Name <span class="text-red-500">*</span></label>
-                            <input type="text" name="first_name" value="{{ old('first_name') }}" required 
+                            <input type="text" name="first_name" value="{{ old('first_name', $student->first_name) }}" required 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('first_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -56,7 +79,7 @@
                         
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Middle Name</label>
-                            <input type="text" name="middle_name" value="{{ old('middle_name') }}" 
+                            <input type="text" name="middle_name" value="{{ old('middle_name', $student->middle_name) }}" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('middle_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -65,7 +88,7 @@
                         
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Last Name <span class="text-red-500">*</span></label>
-                            <input type="text" name="last_name" value="{{ old('last_name') }}" required 
+                            <input type="text" name="last_name" value="{{ old('last_name', $student->last_name) }}" required 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('last_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -73,10 +96,10 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Student ID <span class="text-red-500">*</span></label>
-                            <input type="text" name="student_id" value="{{ old('student_id') }}" required 
+                            <input type="text" name="student_id" value="{{ old('student_id', $student->student_id) }}" required 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('student_id')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -84,36 +107,33 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address <span class="text-red-500">*</span></label>
-                            <input type="email" name="email" value="{{ old('email') }}" required 
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                            <input type="email" name="email" value="{{ old('email', $student->email) }}" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('email')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth <span class="text-red-500">*</span></label>
-                            <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required 
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
+                            <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $student->date_of_birth?->format('Y-m-d')) }}" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('date_of_birth')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                        
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Gender <span class="text-red-500">*</span></label>
-                            <select name="gender" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
-                                <option value="">Select Gender</option>
-                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
-                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
-                            </select>
-                            @error('gender')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Gender <span class="text-red-500">*</span></label>
+                        <select name="gender" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
+                            <option value="male" {{ old('gender', $student->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                            <option value="female" {{ old('gender', $student->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                        </select>
+                        @error('gender')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
@@ -122,9 +142,9 @@
                     <h3 class="text-lg font-bold text-gray-900 border-b border-gray-200 pb-2">Address Information</h3>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Residential Address <span class="text-red-500">*</span></label>
-                        <textarea name="residential_address" rows="3" required 
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">{{ old('residential_address') }}</textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Residential Address</label>
+                        <textarea name="residential_address" rows="3" 
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">{{ old('residential_address', $student->residential_address) }}</textarea>
                         <p class="text-xs text-gray-500 mt-1">Complete permanent home address</p>
                         @error('residential_address')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -134,7 +154,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Apartment / Boarding House Address</label>
                         <textarea name="boarding_address" rows="3" 
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">{{ old('boarding_address') }}</textarea>
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">{{ old('boarding_address', $student->boarding_address) }}</textarea>
                         <p class="text-xs text-gray-500 mt-1">Optional - if living away from home</p>
                         @error('boarding_address')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -148,8 +168,8 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Guardian Full Name <span class="text-red-500">*</span></label>
-                            <input type="text" name="guardian_name" value="{{ old('guardian_name') }}" required 
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Guardian Full Name</label>
+                            <input type="text" name="guardian_name" value="{{ old('guardian_name', $student->guardian_name) }}" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('guardian_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -157,8 +177,8 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Contact Number <span class="text-red-500">*</span></label>
-                            <input type="text" name="guardian_contact" value="{{ old('guardian_contact') }}" required 
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Contact Number</label>
+                            <input type="text" name="guardian_contact" value="{{ old('guardian_contact', $student->guardian_contact) }}" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('guardian_contact')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -174,7 +194,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Mother's Full Name</label>
-                            <input type="text" name="mother_name" value="{{ old('mother_name') }}" 
+                            <input type="text" name="mother_name" value="{{ old('mother_name', $student->mother_name) }}" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('mother_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -183,7 +203,7 @@
                         
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Father's Full Name</label>
-                            <input type="text" name="father_name" value="{{ old('father_name') }}" 
+                            <input type="text" name="father_name" value="{{ old('father_name', $student->father_name) }}" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
                             @error('father_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -194,11 +214,11 @@
 
                 <!-- Submit Buttons -->
                 <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
-                    <a href="{{ route('adviser.dashboard') }}" class="px-6 py-3 text-sm font-semibold border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <a href="{{ route('adviser.students.profile', $student) }}" class="px-6 py-3 text-sm font-semibold border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                         Cancel
                     </a>
                     <button type="submit" class="px-6 py-3 text-sm font-semibold rounded-lg bg-green-700 text-white hover:bg-green-800 transition-colors inline-flex items-center gap-2">
-                        <i class="fa-solid fa-check"></i> Register Student
+                        <i class="fa-solid fa-save"></i> Save Changes
                     </button>
                 </div>
             </form>

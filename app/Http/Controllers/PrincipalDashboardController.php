@@ -15,17 +15,35 @@ use Illuminate\Support\Str;
 
 class PrincipalDashboardController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $pendingApprovalsQuery = Incident::query()
             ->where('status', 'pending_approval');
 
         $incidentsOverview = Incident::query()
             ->whereIn('status', ['pending_approval', 'under_review'])
-            ->with(['students', 'category', 'reporter'])
+            ->with(['students', 'category', 'reporter']);
+
+        // Apply status filter if provided
+        if ($request->filled('status')) {
+            $incidentsOverview->where('status', $request->status);
+        }
+
+        // Apply search filter by student name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $incidentsOverview->whereHas('students', function ($query) use ($search) {
+                $query->where('first_name', 'like', "%{$search}%")
+                      ->orWhere('last_name', 'like', "%{$search}%")
+                      ->orWhere(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', "%{$search}%");
+            });
+        }
+
+        $incidentsOverview = $incidentsOverview
             ->orderByDesc('incident_date')
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         $pendingApprovalsCount = (clone $pendingApprovalsQuery)->count();
 
@@ -58,14 +76,14 @@ class PrincipalDashboardController extends Controller
     public function archives()
     {
         $archivedIncidents = Incident::query()
-            ->where('status', 'approved')
+            ->whereIn('status', ['approved', 'closed'])
             ->with(['students', 'category', 'reporter'])
             ->orderByDesc('updated_at')
             ->paginate(15);
 
-        $totalArchived = Incident::where('status', 'approved')->count();
+        $totalArchived = Incident::whereIn('status', ['approved', 'closed'])->count();
 
-        $archivedThisMonth = Incident::where('status', 'approved')
+        $archivedThisMonth = Incident::whereIn('status', ['approved', 'closed'])
             ->whereBetween('updated_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->count();
 

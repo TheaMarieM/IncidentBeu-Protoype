@@ -8,7 +8,7 @@
         <p class="text-sm text-green-100 font-medium mt-1">Welcome back, {{ Auth::user()->name ?? 'Administrator' }}</p>
     </div>
     <div class="flex items-center gap-6">
-        <a href="{{ route('incidents.create') }}" class="bg-white hover:bg-gray-50 text-green-800 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2">
+        <a href="{{ route('incidents.index') }}" class="bg-white hover:bg-gray-50 text-green-800 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2">
             <i class="fa-solid fa-plus text-xs"></i> Log New Incident
         </a>
         <div class="h-10 w-px bg-green-600"></div>
@@ -189,6 +189,15 @@
                                 <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-black bg-green-100 text-green-800 border-2 border-green-200 uppercase">
                                     <i class="fa-solid fa-check mr-1.5 text-[10px]"></i>
                                     Approved
+                                </span>
+                            @elseif($incident->status === 'closed')
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-black bg-gray-600 text-white border-2 border-gray-700 uppercase">
+                                    Closed
+                                </span>
+                            @elseif($incident->status === 'under_review')
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-black bg-yellow-100 text-yellow-800 border-2 border-yellow-200 uppercase">
+                                    <i class="fa-solid fa-rotate-left mr-1.5 text-[10px]"></i>
+                                    For Revision
                                 </span>
                             @elseif($incident->status === 'rejected')
                                 <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-black bg-red-100 text-red-800 border-2 border-red-200 uppercase">

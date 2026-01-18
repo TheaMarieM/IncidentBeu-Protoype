@@ -5,7 +5,7 @@
 <header class="bg-white border-b border-gray-200 px-8 py-5 flex justify-between items-center sticky top-0 z-40">
     <div>
         <h2 class="text-xl font-bold text-gray-800">Personnel Management: Advisers</h2>
-        <p class="text-xs text-gray-500 font-medium mt-0.5">Manage access and section assignments for BEU faculty [cite: 346]</p>
+        <p class="text-xs text-gray-500 font-medium mt-0.5">Manage access and section assignments for BEU faculty</p>
     </div>
     <div>
         <a href="{{ route('advisers.create') }}" class="bg-green-700 hover:bg-green-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm flex items-center gap-2">
@@ -101,7 +101,7 @@
                         <td class="px-6 py-4">
                             <div class="flex gap-2">
                                 <a href="{{ route('advisers.edit', $adviser) }}" class="text-blue-600 hover:text-blue-800 text-xs font-bold uppercase tracking-wide">
-                                    Update Record [cite: 346]
+                                    Update Record
                                 </a>
                                 <span class="text-gray-300">|</span>
                                 <a href="{{ route('advisers.show', $adviser) }}" class="text-gray-600 hover:text-gray-800 text-xs font-bold uppercase tracking-wide">

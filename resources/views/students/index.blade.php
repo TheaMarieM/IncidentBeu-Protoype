@@ -2,15 +2,10 @@
 
 @section('content')
 <!-- Header -->
-<header class="bg-white border-b border-gray-200 px-8 py-5 flex justify-between items-center sticky top-0 z-40">
+<header class="bg-white border-b border-gray-200 px-8 py-5 sticky top-0 z-40">
     <div>
         <h2 class="text-xl font-bold text-gray-800">Student & Parent Registry</h2>
         <p class="text-xs text-gray-500 font-medium mt-0.5">Centralized database for the Basic Education Unit</p>
-    </div>
-    <div>
-        <a href="{{ route('students.create') }}" class="bg-green-700 hover:bg-green-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm flex items-center gap-2">
-            <i class="fa-solid fa-user-plus text-xs"></i> Register New Student
-        </a>
     </div>
 </header>
 

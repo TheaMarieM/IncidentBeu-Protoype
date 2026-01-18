@@ -11,9 +11,6 @@
         <a href="{{ route('students.index') }}" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors">
             <i class="fa-solid fa-arrow-left mr-2"></i> Back to List
         </a>
-        <a href="{{ route('students.edit', $student) }}" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition-colors">
-            <i class="fa-solid fa-pen-to-square mr-2"></i> Edit Profile
-        </a>
     </div>
 </header>
 

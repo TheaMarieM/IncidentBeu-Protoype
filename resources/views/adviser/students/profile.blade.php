@@ -3,6 +3,8 @@
 @section('content')
 @php
     $userName = auth()->user()->name ?? 'Adviser';
+    $sectionName = auth()->user()->section ?? 'Adviser';
+    $adviserTitle = $sectionName ? $sectionName . "'s Adviser" : 'Adviser';
     $fullName = $student->first_name . ' ' . ($student->middle_name ? $student->middle_name . ' ' : '') . $student->last_name;
 @endphp
 
@@ -19,7 +21,7 @@
     <div class="flex items-center gap-4">
         <div class="h-10 w-px bg-gray-300"></div>
         <div class="flex items-center gap-3">
-            <p class="text-sm font-bold text-gray-900">Adviser</p>
+            <p class="text-sm font-bold text-gray-900">{{ $adviserTitle }}</p>
             <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
                 <i class="fa-solid fa-user"></i>
             </div>
@@ -113,10 +115,13 @@
             </div>
         </div>
 
-        <!-- Back Button -->
-        <div class="flex justify-center pt-4">
-            <a href="{{ route('adviser.students.show', $student) }}" class="px-6 py-3 text-sm font-semibold rounded-lg bg-green-700 text-white hover:bg-green-800 transition-colors inline-flex items-center gap-2">
+        <!-- Action Buttons -->
+        <div class="flex justify-center gap-4 pt-4">
+            <a href="{{ route('adviser.students.show', $student) }}" class="px-6 py-3 text-sm font-semibold rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors inline-flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> Back to Records
+            </a>
+            <a href="{{ route('adviser.students.edit', $student) }}" class="px-6 py-3 text-sm font-semibold rounded-lg bg-green-700 text-white hover:bg-green-800 transition-colors inline-flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
             </a>
         </div>
     </section>

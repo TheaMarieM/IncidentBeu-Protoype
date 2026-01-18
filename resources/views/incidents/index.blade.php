@@ -239,6 +239,16 @@
                 <input type="text" name="section" value="{{ request('section') }}" placeholder="Filter Section..." 
                        class="px-3 py-2 border border-gray-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-green-500 outline-none bg-gray-50 w-32">
                 
+                <!-- Status Filter -->
+                <select name="status" onchange="this.form.submit()" class="px-3 py-2 border border-gray-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-green-500 outline-none bg-gray-50 text-gray-600">
+                    <option value="">All Statuses</option>
+                    <option value="reported" {{ request('status') == 'reported' ? 'selected' : '' }}>Reported</option>
+                    <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>For Revision</option>
+                    <option value="pending_approval" {{ request('status') == 'pending_approval' ? 'selected' : '' }}>Pending Approval</option>
+                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="closed" {{ request('status') == 'closed' ? 'selected' : '' }}>Closed</option>
+                </select>
+                
                 @if(request('search')) <input type="hidden" name="search" value="{{ request('search') }}"> @endif
                 
                 <button type="submit" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-colors">
@@ -251,6 +261,7 @@
             <form method="GET" class="relative w-full max-w-md">
                 @if(request('grade_level')) <input type="hidden" name="grade_level" value="{{ request('grade_level') }}"> @endif
                 @if(request('section')) <input type="hidden" name="section" value="{{ request('section') }}"> @endif
+                @if(request('status')) <input type="hidden" name="status" value="{{ request('status') }}"> @endif
                 
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by student, case ID, or details..." 
@@ -311,6 +322,14 @@
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 uppercase">
                                     <i class="fa-solid fa-circle-check mr-1.5"></i> Done / Closed
                                 </span>
+                            @elseif($incident->status === 'closed')
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-600 text-white border border-gray-700 uppercase">
+                                    Closed
+                                </span>
+                            @elseif($incident->status === 'under_review')
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-100 uppercase">
+                                    <i class="fa-solid fa-rotate-left mr-1.5"></i> For Revision
+                                </span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-50 text-gray-700 border border-gray-100 uppercase">
                                     {{ $incident->status }}
@@ -323,9 +342,12 @@
                                     Manage
                                 </a>
                                 @if($incident->status === 'approved')
-                                <button class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase transition-colors">
-                                    Archive
-                                </button>
+                                <form action="{{ route('incidents.archive', $incident) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" onclick="return confirm('Archive this incident? It will be moved to closed status.')" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase transition-colors">
+                                        Archive
+                                    </button>
+                                </form>
                                 @endif
                             </div>
                         </td>

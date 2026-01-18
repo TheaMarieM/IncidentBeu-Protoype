@@ -21,10 +21,7 @@
                 <!-- Header -->
                 <div class="text-center border-b border-gray-200 pb-6">
                     <div class="flex justify-center mb-4">
-                        <!-- Placeholder for Logo -->
-                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
-                            <i class="fa-solid fa-university text-3xl"></i>
-                        </div>
+                        <img src="{{ asset('images/spup_logo.png') }}" alt="SPUP Logo" class="w-20 h-20 object-contain">
                     </div>
                     <h1 class="font-serif text-xl md:text-2xl font-bold text-gray-900">St. Paul University Philippines</h1>
                     <p class="text-sm text-gray-600">Tuguegarao City, Cagayan 3500</p>
@@ -98,16 +95,30 @@
                             // Get max offense count among students
                             $maxOffense = $incident->students->max('pivot.offense_count') ?? 1;
                             $offenseLabels = [1 => 'First Offense', 2 => 'Second Offense', 3 => 'Third Offense', 4 => 'Fourth Offense', 5 => 'Fifth Offense'];
+                            $isEditable = in_array($incident->status, ['reported', 'under_review']);
                         @endphp
+                        <input type="hidden" name="offense_count" id="offense_count" value="{{ $maxOffense }}">
                         <div class="inline-flex rounded-md shadow-sm" role="group">
                             @foreach($offenseLabels as $k => $label)
-                                <span class="px-3 py-1 text-xs font-medium border border-gray-200 
-                                    {{ $maxOffense == $k ? 'bg-red-50 text-red-700 border-red-200 z-10' : 'bg-white text-gray-500' }}
-                                    {{ $loop->first ? 'rounded-l-lg' : '' }}
-                                    {{ $loop->last ? 'rounded-r-lg' : '' }}
-                                    ">
-                                    {{ $label }}
-                                </span>
+                                @if($isEditable)
+                                    <button type="button" data-offense="{{ $k }}" id="offense-btn-{{ $k }}"
+                                        class="offense-select-btn px-3 py-1 text-xs font-medium border border-gray-200 transition-all
+                                        {{ $maxOffense == $k ? 'bg-red-50 text-red-700 border-red-200 z-10' : 'bg-white text-gray-500 hover:bg-gray-50' }}
+                                        {{ $loop->first ? 'rounded-l-lg' : '' }}
+                                        {{ $loop->last ? 'rounded-r-lg' : '' }}
+                                        ">
+                                        {{ $label }}
+                                    </button>
+                                @else
+                                    <span id="offense-btn-{{ $k }}"
+                                        class="px-3 py-1 text-xs font-medium border border-gray-200 cursor-not-allowed
+                                        {{ $maxOffense == $k ? 'bg-red-50 text-red-700 border-red-200 z-10' : 'bg-gray-100 text-gray-400' }}
+                                        {{ $loop->first ? 'rounded-l-lg' : '' }}
+                                        {{ $loop->last ? 'rounded-r-lg' : '' }}
+                                        ">
+                                        {{ $label }}
+                                    </span>
+                                @endif
                             @endforeach
                         </div>
                     </div>
@@ -234,4 +245,33 @@
         }
     }
 </style>
+
+<script>
+    function selectOffense(offenseNumber) {
+        // Update hidden input
+        document.getElementById('offense_count').value = offenseNumber;
+        
+        // Update button styles
+        for (let i = 1; i <= 5; i++) {
+            const btn = document.getElementById('offense-btn-' + i);
+            if (i === offenseNumber) {
+                btn.classList.remove('bg-white', 'text-gray-500', 'hover:bg-gray-50');
+                btn.classList.add('bg-red-50', 'text-red-700', 'border-red-200', 'z-10');
+            } else {
+                btn.classList.remove('bg-red-50', 'text-red-700', 'border-red-200', 'z-10');
+                btn.classList.add('bg-white', 'text-gray-500', 'hover:bg-gray-50');
+            }
+        }
+    }
+
+    // Add event listeners to offense select buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.offense-select-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const offenseNumber = parseInt(this.getAttribute('data-offense'));
+                selectOffense(offenseNumber);
+            });
+        });
+    });
+</script>
 @endsection

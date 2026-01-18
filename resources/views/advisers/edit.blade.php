@@ -28,30 +28,30 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                        <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                         <input type="text" name="name" id="name" value="{{ old('name', $adviser->name) }}" 
-                            class="w-full rounded-lg border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-gray-300 focus:ring-0 text-sm" readonly>
+                            class="block w-full mt-1 rounded-md shadow-sm border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-gray-300 focus:ring-0" readonly>
                         @error('name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
-                        <label for="employee_id" class="block text-sm font-semibold text-gray-700 mb-1">Employee ID</label>
+                        <label for="employee_id" class="block text-sm font-semibold text-gray-700 mb-2">Employee ID</label>
                         <input type="text" name="employee_id" id="employee_id" value="{{ old('employee_id', $adviser->employee_id) }}" 
-                            class="w-full rounded-lg border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-gray-300 focus:ring-0 text-sm" readonly>
+                            class="block w-full mt-1 rounded-md shadow-sm border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-gray-300 focus:ring-0" readonly>
                         @error('employee_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
-                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
                         <input type="email" name="email" id="email" value="{{ old('email', $adviser->email) }}" 
-                            class="w-full rounded-lg border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-gray-300 focus:ring-0 text-sm" readonly>
+                            class="block w-full mt-1 rounded-md shadow-sm border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-gray-300 focus:ring-0" readonly>
                         @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
-                        <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                        <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
                         <input type="text" name="phone" id="phone" value="{{ old('phone', $adviser->phone) }}" 
-                            class="w-full rounded-lg border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-gray-300 focus:ring-0 text-sm" readonly>
+                            class="block w-full mt-1 rounded-md shadow-sm border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed focus:border-gray-300 focus:ring-0" readonly>
                         @error('phone')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -78,8 +78,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="grade_level" class="block text-sm font-semibold text-gray-700 mb-1">Grade Level</label>
-                        <select name="grade_level" id="grade_level" class="w-full rounded-lg border-gray-300 focus:border-green-500 focus:ring-green-500 text-sm">
+                        <label for="grade_level" class="block text-sm font-semibold text-gray-700 mb-2">Grade Level</label>
+                        <select name="grade_level" id="grade_level" class="block w-full mt-1 rounded-md shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500">
                             <option value="">Select Grade Level</option>
                             @for($i = 7; $i <= 12; $i++)
                                 <option value="{{ $i }}" {{ old('grade_level', $currentGrade) == $i ? 'selected' : '' }}>Grade {{ $i }}</option>
@@ -89,10 +89,10 @@
                     </div>
 
                     <div>
-                        <label for="section" class="block text-sm font-semibold text-gray-700 mb-1">Section Name</label>
+                        <label for="section" class="block text-sm font-semibold text-gray-700 mb-2">Section Name</label>
                         <input type="text" name="section" id="section" value="{{ old('section', $currentSection) }}" 
                             placeholder="e.g. St. Matthew"
-                            class="w-full rounded-lg border-gray-300 focus:border-green-500 focus:ring-green-500 text-sm">
+                            class="block w-full mt-1 rounded-md shadow-sm border-gray-300 focus:border-green-500 focus:ring-green-500">
                         @error('section')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                 </div>

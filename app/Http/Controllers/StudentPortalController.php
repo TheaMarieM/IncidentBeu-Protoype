@@ -50,9 +50,9 @@ class StudentPortalController extends Controller
             ->whereBetween('date', [$semesterStart, $semesterEnd])
             ->count();
 
-        // Get attendance history with pagination
+        // Get attendance history with pagination (only absences and tardiness)
         $attendanceHistory = AttendanceRecord::where('student_id', $student->id)
-            ->with(['reporter'])
+            ->whereIn('status', ['absent', 'tardy', 'excused'])
             ->orderBy('date', 'desc')
             ->paginate(10);
 

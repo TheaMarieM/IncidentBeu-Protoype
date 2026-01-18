@@ -10,7 +10,9 @@ class Student extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'student_id',
+        'email',
         'first_name',
         'middle_name',
         'last_name',
@@ -20,12 +22,23 @@ class Student extends Model
         'section',
         'adviser_id',
         'address',
+        'residential_address',
+        'boarding_address',
+        'guardian_name',
+        'guardian_contact',
+        'mother_name',
+        'father_name',
         'status',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function adviser()
     {

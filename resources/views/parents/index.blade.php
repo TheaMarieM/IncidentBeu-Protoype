@@ -196,19 +196,18 @@
             <div class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Notification Subject</label>
-                    <input type="text" name="subject" required placeholder="e.g. Guidance Office Meeting"
-                        class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">
+                    <input type="text" name="subject" required value="Request for Parent Conference"
+                        class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-amber-500 focus:ring-amber-500">
                 </div>
                 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Message</label>
-                    <textarea name="message" rows="4" required placeholder="Type your message here..."
-                        class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm"></textarea>
+                    <textarea name="message" rows="4" required class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-amber-500 focus:ring-amber-500">Good day! We would like to request your presence at the school for a meeting with the Discipline Office. Please contact us at your earliest convenience to schedule an appointment. Thank you for your cooperation.</textarea>
                 </div>
                 
                 <div class="bg-blue-50 p-3 rounded text-xs text-blue-700 flex items-start gap-2">
                     <i class="fa-solid fa-circle-info mt-0.5"></i>
-                    <p>This notification will be visible in the Parent Portal immediately.</p>
+                    <p>This notification will be visible in the Parent Portal immediately. You can modify the message above before sending.</p>
                 </div>
             </div>
             

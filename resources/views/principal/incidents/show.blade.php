@@ -3,9 +3,9 @@
 @section('content')
 @php
     $statusStyles = [
-        'pending_approval' => ['label' => 'Pending Approval', 'pill' => 'bg-red-100 text-red-700 border border-red-200'],
-        'approved' => ['label' => 'Approved', 'pill' => 'bg-green-100 text-green-700 border border-green-200'],
-        'under_review' => ['label' => 'Returned for Revision', 'pill' => 'bg-yellow-100 text-yellow-700 border border-yellow-200'],
+        'pending_approval' => ['label' => 'Pending Approval', 'pill' => 'bg-blue-50 text-blue-700 border border-blue-100'],
+        'approved' => ['label' => 'Approved', 'pill' => 'bg-green-50 text-green-700 border border-green-100'],
+        'under_review' => ['label' => 'Returned for Revision', 'pill' => 'bg-yellow-100 text-yellow-800 border border-yellow-200'],
     ];
     $statusMeta = $statusStyles[$incident->status] ?? ['label' => ucfirst(str_replace('_', ' ', $incident->status)), 'pill' => 'bg-gray-100 text-gray-600 border border-gray-200'];
     $primaryStudent = $incident->students->first();
@@ -39,6 +39,9 @@
     </div>
 
     <div class="flex gap-3">
+        <a href="{{ route('principal.dashboard') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium text-xs">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+        </a>
         <button class="px-4 py-2 border border-gray-300 bg-white text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors">
             <i class="fa-solid fa-file-pdf mr-1"></i> Export PDF
         </button>
@@ -67,7 +70,7 @@
 
         <div class="text-center mb-8 relative z-10">
             <div class="flex justify-center mb-3">
-                <img src="{{ asset('images/spup-logo.png') }}" alt="SPUP Logo" class="w-16 h-16 object-contain">
+                <img src="{{ asset('images/spup_logo.png') }}" alt="SPUP Logo" class="w-20 h-20 object-contain">
             </div>
             <h1 class="font-serif font-bold text-xl text-gray-900">St. Paul University Philippines</h1>
             <p class="font-serif text-sm text-gray-600">Tuguegarao City, Cagayan 3500</p>
@@ -186,7 +189,7 @@
                                     <i class="fa-solid fa-check-circle"></i> Case Closed
                                 </div>
                             @else
-                                <div class="bg-yellow-100 text-yellow-800 border border-yellow-200 px-4 py-1.5 rounded text-[10px] font-bold uppercase flex items-center gap-2">
+                                <div class="bg-blue-50 text-blue-700 border border-blue-100 px-4 py-1.5 rounded text-[10px] font-bold uppercase flex items-center gap-2">
                                     <i class="fa-solid fa-hourglass-half"></i> {{ $statusMeta['label'] }}
                                 </div>
                             @endif
