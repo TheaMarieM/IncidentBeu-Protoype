@@ -220,7 +220,8 @@ This is an academic project for St. Paul University Philippines. For contributio
 
 ## 👥 Development Team
 
-**St. Paul University Philippines - BSCS Students**
+**Marithea Magno & Ariana Siddayao (St. Paul University Philippines - BSIT Students)**
+
 - System Analysis & Design
 - Database Architecture
 - Backend Development
