@@ -124,6 +124,8 @@
                                 <tr>
                                     <th class="px-6 py-3 font-semibold">Date</th>
                                     <th class="px-6 py-3 font-semibold">Status</th>
+                                    <th class="px-6 py-3 font-semibold">Time In</th>
+                                    <th class="px-6 py-3 font-semibold">Remarks</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 text-sm">
@@ -140,10 +142,20 @@
                                                 <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wide">Absent</span>
                                             @elseif ($record->status === 'tardy')
                                                 <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wide">Tardy</span>
+                                            @elseif ($record->status === 'excused')
+                                                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wide">Excused</span>
                                             @else
                                                 <span class="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wide">{{ ucfirst($record->status) }}</span>
                                             @endif
                                         </td>
+                                        <td class="px-6 py-3 text-gray-600">
+                                            @if($record->time_in)
+                                                {{ \Carbon\Carbon::parse($record->time_in)->format('h:i A') }}
+                                            @else
+                                                <span class="text-gray-400">—</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-3 text-gray-600 text-xs">{{ $record->remarks ?? '—' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

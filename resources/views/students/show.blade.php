@@ -111,7 +111,7 @@
         <div class="lg:col-span-2 space-y-6">
             
             <!-- Statistics Row -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
                 <div class="bg-white p-5 rounded-xl border border-gray-200 card-shadow">
                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Total Incidents</p>
                     <h2 class="text-3xl font-bold text-gray-900">{{ $student->incidents->count() }}</h2>
@@ -125,6 +125,77 @@
                     @if($absences >= 10)
                         <span class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded mt-1 inline-block">At Risk</span>
                     @endif
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-gray-200 card-shadow">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Tardiness (Year)</p>
+                    @php
+                        $tardiness = $student->attendanceRecords->where('status', 'tardy')->count();
+                    @endphp
+                    <h2 class="text-3xl font-bold {{ $tardiness >= 10 ? 'text-amber-600' : 'text-gray-900' }}">{{ $tardiness }}</h2>
+                    @if($tardiness >= 10)
+                        <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded mt-1 inline-block">Frequent</span>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Attendance Records List -->
+            <div class="bg-white rounded-xl border border-gray-200 card-shadow overflow-hidden mb-6">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                    <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wide">Attendance Records</h3>
+                    @php
+                        $attendanceCount = $student->attendanceRecords->whereIn('status', ['absent', 'tardy', 'excused'])->count();
+                        $tardyCount = $student->attendanceRecords->where('status', 'tardy')->count();
+                    @endphp
+                    <span class="text-xs text-gray-500">{{ $attendanceCount }} Record(s)</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Time In</th>
+                                <th class="px-6 py-3 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Remarks</th>
+                                <th class="px-6 py-3 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Recorded By</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-sm">
+                            @forelse($student->attendanceRecords->whereIn('status', ['absent', 'tardy', 'excused'])->sortByDesc('date') as $record)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-gray-800">{{ $record->date->format('M d, Y') }}</div>
+                                    <div class="text-xs text-gray-500">{{ $record->date->format('l') }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($record->status === 'absent')
+                                        <span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded uppercase">Absent</span>
+                                    @elseif($record->status === 'tardy')
+                                        <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded uppercase">Tardy</span>
+                                    @elseif($record->status === 'excused')
+                                        <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded uppercase">Excused</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">
+                                    @if($record->time_in)
+                                        {{ \Carbon\Carbon::parse($record->time_in)->format('h:i A') }}
+                                    @else
+                                        <span class="text-gray-400">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-gray-600 text-xs">{{ $record->remarks ?? '—' }}</td>
+                                <td class="px-6 py-4 text-gray-500 text-xs">{{ $record->recorder->name ?? 'System' }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-400">
+                                    <i class="fa-solid fa-calendar-check text-green-400 text-2xl mb-2"></i>
+                                    <p class="text-sm">No attendance issues recorded.</p>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

@@ -23,6 +23,11 @@
                 class="pb-3 px-2 border-b-2 font-bold text-sm transition-colors flex items-center gap-2">
             <i class="fa-solid fa-table-list"></i> Master Log
         </button>
+        <button @click="activeTab = 'archives'" 
+                :class="activeTab === 'archives' ? 'border-green-600 text-green-700' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                class="pb-3 px-2 border-b-2 font-bold text-sm transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-box-archive"></i> Archives
+        </button>
     </div>
 
     <!-- New Incident Entry Form -->
@@ -368,6 +373,61 @@
             {{ $incidents->links() }}
         </div>
         @endif
+    </div>
+
+    <!-- Archives Section -->
+    <div x-show="activeTab === 'archives'" class="bg-white rounded-xl border border-gray-200 card-shadow overflow-hidden animate-fade-in" style="display: none;">
+        <div class="px-6 py-5 border-b border-gray-100">
+            <h3 class="font-bold text-gray-800">Archived Cases</h3>
+            <p class="text-xs text-gray-500 mt-1">Closed and archived incident records</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Case ID</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Incident Detail</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Parties Involved</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Date Archived</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase text-gray-400 tracking-wider">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm">
+                    @forelse($archivedIncidents ?? [] as $archived)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-gray-500 text-xs font-mono">#INC-{{ now()->year }}-{{ str_pad($archived->id, 3, '0', STR_PAD_LEFT) }}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-semibold text-gray-800">{{ $archived->category->name ?? 'N/A' }}</div>
+                            <div class="text-xs text-gray-500">{{ $archived->incident_date->format('M d, Y') }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">
+                            @if($archived->students->isNotEmpty())
+                                {{ $archived->students->first()->full_name }}
+                            @elseif($archived->non_student_participant)
+                                {{ $archived->non_student_participant }}
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-gray-500 text-xs">{{ $archived->updated_at->format('M d, Y') }}</td>
+                        <td class="px-6 py-4">
+                            <a href="{{ route('incidents.show', $archived) }}" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase transition-colors">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-400 text-sm">
+                            <i class="fa-solid fa-box-archive text-3xl mb-3 opacity-30"></i>
+                            <p>No archived cases yet.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>

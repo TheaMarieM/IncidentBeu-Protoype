@@ -147,6 +147,71 @@
         </div>
     </section>
 
+    <!-- Attendance Records Section -->
+    <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden card-shadow">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <p class="text-xs uppercase tracking-wide text-gray-400 font-semibold">Attendance Records</p>
+            <h2 class="text-xl font-black text-gray-900 mt-1">Absences & Tardiness History</h2>
+            <p class="text-xs text-gray-500 mt-1">Detailed log of all attendance issues for this student.</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-[10px] uppercase tracking-[0.2em] text-gray-500">
+                    <tr>
+                        <th class="px-6 py-4 text-left">Date</th>
+                        <th class="px-6 py-4 text-left">Status</th>
+                        <th class="px-6 py-4 text-left">Time In</th>
+                        <th class="px-6 py-4 text-left">Remarks</th>
+                        <th class="px-6 py-4 text-left">Recorded By</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse($attendanceRecords as $record)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-gray-900 font-medium">
+                            {{ $record->date->format('M d, Y') }}
+                            <span class="block text-[10px] text-gray-400 font-normal">{{ $record->date->format('l') }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            @if($record->status === 'absent')
+                                <span class="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
+                                    Absent
+                                </span>
+                            @elseif($record->status === 'tardy')
+                                <span class="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                    Tardy
+                                </span>
+                            @elseif($record->status === 'excused')
+                                <span class="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                    Excused
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">
+                            @if($record->time_in)
+                                {{ \Carbon\Carbon::parse($record->time_in)->format('h:i A') }}
+                            @else
+                                <span class="text-gray-400">—</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 text-xs">{{ $record->remarks ?? '—' }}</td>
+                        <td class="px-6 py-4 text-gray-500 text-xs">{{ $record->recorder->name ?? 'System' }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-calendar-check text-green-400 text-4xl mb-3 opacity-50"></i>
+                            <p class="font-semibold">No attendance issues</p>
+                            <p class="text-xs mt-1">This student has no recorded absences or tardiness.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
+
     <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden card-shadow">
         <div class="px-6 py-4 border-b border-gray-100">
             <p class="text-xs uppercase tracking-wide text-gray-400 font-semibold">Incident Records</p>

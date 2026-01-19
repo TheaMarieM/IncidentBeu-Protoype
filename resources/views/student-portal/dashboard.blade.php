@@ -99,16 +99,19 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-gray-800 font-medium">
-                                @if($record->status === 'absent')
-                                    {{ $record->notes ?? 'Whole day absence.' }}
-                                @elseif($record->status === 'tardy')
-                                    {{ $record->notes ?? 'Late arrival to class.' }}
+                                @if($record->status === 'tardy' && $record->time_in)
+                                    Arrived at {{ \Carbon\Carbon::parse($record->time_in)->format('h:i A') }}
+                                @elseif($record->status === 'absent')
+                                    Whole day absence
                                 @elseif($record->status === 'excused')
-                                    {{ $record->notes ?? 'Excused absence.' }}
+                                    Excused absence
                                 @else
-                                    {{ $record->notes ?? 'No details provided.' }}
+                                    —
                                 @endif
                             </div>
+                            @if($record->remarks)
+                                <div class="text-xs text-gray-500 mt-1">{{ $record->remarks }}</div>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             @if($record->is_excused)

@@ -18,7 +18,8 @@ class IncidentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Incident::with(['students', 'category', 'reporter.role']);
+        $query = Incident::with(['students', 'category', 'reporter.role'])
+            ->where('status', '!=', 'closed'); // Exclude archived incidents from main log
 
         // Filter by Grade Level
         if ($request->filled('grade_level')) {
@@ -57,6 +58,12 @@ class IncidentController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        // Get archived incidents
+        $archivedIncidents = Incident::with(['students', 'category'])
+            ->where('status', 'closed')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
         $violationCategories = ViolationCategory::where('is_active', true)
             ->orderBy('sort_order')
             ->get();
@@ -65,7 +72,7 @@ class IncidentController extends Controller
             ->orderBy('last_name')
             ->get();
 
-        return view('incidents.index', compact('incidents', 'violationCategories', 'students'));
+        return view('incidents.index', compact('incidents', 'archivedIncidents', 'violationCategories', 'students'));
     }
 
     public function create()
@@ -160,6 +167,9 @@ class IncidentController extends Controller
                 ->with('success', 'Incident logged successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Incident store failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return back()->withInput()
                 ->with('error', 'Failed to log incident: ' . $e->getMessage());
         }
@@ -323,7 +333,7 @@ class IncidentController extends Controller
 
         return Incident::where('violation_category_id', $categoryId)
             ->whereHas('students', function ($query) use ($studentId) {
-                $query->where('student_id', $studentId);
+                $query->where('students.id', $studentId);
             })
             ->count() + 1;
     }

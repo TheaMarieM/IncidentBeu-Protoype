@@ -39,6 +39,9 @@
                 <a href="{{ route('incidents.index') }}" class="{{ request()->routeIs('incidents.*') ? 'sidebar-item-active' : '' }} flex items-center gap-3 px-4 py-3 text-sm font-medium text-white {{ request()->routeIs('incidents.*') ? '' : 'hover:bg-green-800' }} rounded transition-all">
                     <i class="fa-solid fa-clipboard-check w-5 {{ request()->routeIs('incidents.*') ? 'text-yellow-400' : 'opacity-70' }}"></i>Incident Records
                 </a>
+                <a href="{{ route('attendance.index') }}" class="{{ request()->routeIs('attendance.*') ? 'sidebar-item-active' : '' }} flex items-center gap-3 px-4 py-3 text-sm font-medium text-white {{ request()->routeIs('attendance.*') ? '' : 'hover:bg-green-800' }} rounded transition-all">
+                    <i class="fa-solid fa-calendar-check w-5 {{ request()->routeIs('attendance.*') ? 'text-yellow-400' : 'opacity-70' }}"></i>Attendance
+                </a>
 
                 <div class="pt-4 pb-2 text-xs font-bold text-yellow-400 uppercase tracking-wider px-4">
                     User Management

@@ -10,6 +10,7 @@ use App\Http\Controllers\AdviserController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\ParentPortalController;
 use App\Http\Controllers\PrincipalDashboardController;
+use App\Http\Controllers\AttendanceController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,6 +80,17 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:30,1');
     Route::post('/incidents/{incident}/archive', [IncidentController::class, 'archive'])
         ->name('incidents.archive')
+        ->middleware('throttle:30,1');
+    
+    // Attendance Management (with rate limiting)
+    Route::get('/attendance', [AttendanceController::class, 'index'])
+        ->name('attendance.index')
+        ->middleware('throttle:60,1');
+    Route::post('/attendance', [AttendanceController::class, 'store'])
+        ->name('attendance.store')
+        ->middleware('throttle:30,1');
+    Route::delete('/attendance/{attendance}', [AttendanceController::class, 'destroy'])
+        ->name('attendance.destroy')
         ->middleware('throttle:30,1');
     
     // Adviser Management (with rate limiting)

@@ -172,7 +172,14 @@ class AdviserController extends Controller
             ->where('status', 'absent')
             ->count();
 
-        return view('adviser.students.show', compact('student', 'tardyCount', 'absentCount'));
+        // Get attendance records with details
+        $attendanceRecords = \App\Models\AttendanceRecord::where('student_id', $student->id)
+            ->whereIn('status', ['absent', 'tardy', 'excused'])
+            ->with('recorder')
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return view('adviser.students.show', compact('student', 'tardyCount', 'absentCount', 'attendanceRecords'));
     }
 
     public function createStudent()
